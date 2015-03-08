@@ -80,7 +80,7 @@ namespace AutoShare
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         static void CheckFolder()
         {
-            
+                        
             FileSystemWatcher watcher = new FileSystemWatcher();
             watcher.Path = Properties.Settings.Default.FolderPath;
             watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
@@ -92,20 +92,20 @@ namespace AutoShare
             watcher.Renamed += new RenamedEventHandler(OnRenamed);
 
             watcher.EnableRaisingEvents = true;
-        }
+                        }
 
         private static void OnChanged(object source, FileSystemEventArgs e)
         {
 
-        }
+                    }
         private static void OnDeleted(object source, FileSystemEventArgs e)
         {
-            
-        }
+                    
+                }
         private static void OnCreated(object source, FileSystemEventArgs e) 
         {
 
-        }
+            }
         private static void OnRenamed(object source, RenamedEventArgs e)
         {
             
