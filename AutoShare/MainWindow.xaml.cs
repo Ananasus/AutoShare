@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.IO;
 using System.Windows.Shapes;
+using System.Security.Permissions;
 
 namespace AutoShare
 {
@@ -39,12 +40,76 @@ namespace AutoShare
                         // Code to read the contents of the text file
                         if (File.Exists(fileLoc))
                         {
-                        
+
                         }
                     }
-                    
+                    catch { }
                 }
             }
+        }
+    }
+
+    public class File
+    {
+        string FilePath;
+        bool IsShared;
+        bool IsChanged;
+        bool IsDeleted;
+        bool IsRenamed;
+
+        File(string FilePath, bool IsShared, bool IsChanged, bool IsRenamed, bool IsDeleted) 
+        { 
+            this.FilePath = FilePath;
+            this.IsShared = IsShared;
+            this.IsShared = IsRenamed;
+            this.IsDeleted = IsDeleted;
+        }
+    }
+
+    public class FileList
+    {
+        List<File> FList;
+
+        void Add() { }
+        void Remove() { }
+        void SyncFileList(){ }
+    }
+
+
+    public class FilesFolderChecker
+    {
+        [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+        static void CheckFolder()
+        {
+            
+            FileSystemWatcher watcher = new FileSystemWatcher();
+            watcher.Path = Properties.Settings.Default.FolderPath;
+            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
+               | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            //watcher.Filter = "*.*";
+            watcher.Changed += new FileSystemEventHandler(OnChanged);
+            watcher.Created += new FileSystemEventHandler(OnCreated);
+            watcher.Deleted += new FileSystemEventHandler(OnDeleted);
+            watcher.Renamed += new RenamedEventHandler(OnRenamed);
+
+            watcher.EnableRaisingEvents = true;
+        }
+
+        private static void OnChanged(object source, FileSystemEventArgs e)
+        {
+
+        }
+        private static void OnDeleted(object source, FileSystemEventArgs e)
+        {
+            
+        }
+        private static void OnCreated(object source, FileSystemEventArgs e) 
+        {
+
+        }
+        private static void OnRenamed(object source, RenamedEventArgs e)
+        {
+            
         }
     }
 }
