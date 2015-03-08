@@ -39,15 +39,10 @@ namespace AutoShare
                         // Code to read the contents of the text file
                         if (File.Exists(fileLoc))
                         {
-
+                        
                         }
                     }
-                    catch (Exception sfdb) 
-                    {
-
-                    }
                     
-                
                 }
             }
         }
