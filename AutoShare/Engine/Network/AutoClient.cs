@@ -4,24 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
+using System.Threading;
 
-namespace AutoShare.Engine.Networks
+
+namespace AutoShare.Engine.Network
 {
     public class Node {
         System.Net.EndPoint EndPoint;
-        string Key;
-        
-
+        string EncryptionKey;
     }
 
     public class Helper
     {
-        static const int DefaultServerPort = 4321;
+        static int DefaultServerPort = 4321;
     }
 
     public class Client
     {
         TcpClient tcp_client;
+        List<Task> task;
         List<Node> nodes;
         Client()
         {

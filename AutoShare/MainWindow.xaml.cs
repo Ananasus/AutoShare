@@ -37,12 +37,14 @@ namespace AutoShare
                 {
                     try
                     {
-                        if (File.Exists(fileLoc))
+                        if (System.IO.File.Exists(fileLoc))
                         {
                         
                         }
                     }
-                    catch { }
+                    catch {
+                    
+                    }
                 }
             }
         }

@@ -3,35 +3,41 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
-class NewtworkServer
+namespace Autoshare.Engine.Network 
 {
-    TcpListener Listener; // Объект, принимающий TCP-клиентов
-
-    // Запуск сервера
-    public NewtworkServer(int Port)
+    class NewtworkServer
     {
-        // Создаем "слушателя" для указанного порта
-        Listener = new TcpListener(IPAddress.Any, Port);
-        Listener.Start(); // Запускаем его
+        TcpListener Listener; // Объект, принимающий TCP-клиентов
+        
+        
 
-        // В бесконечном цикле
-        while (true)
+        // Запуск сервера
+        public NewtworkServer(int Port)
         {
-            // Принимаем новых клиентов
-            Listener.AcceptTcpClient();
-        }
-    }
+            // Создаем "слушателя" для указанного порта
+            Listener = new TcpListener(IPAddress.Any, Port);
+            Listener.Start(); // Запускаем его
 
-    // Остановка сервера
-    ~NewtworkServer()
-    {
-        // Если "слушатель" был создан
-        if (Listener != null)
-        {
-            // Остановим его
-            Listener.Stop();
+            // В бесконечном цикле
+            while (true)
+            {
+                // Принимаем новых клиентов
+                Listener.AcceptTcpClient();
+            }
         }
 
+        // Остановка сервера
+        ~NewtworkServer()
+        {
+            // Если "слушатель" был создан
+            if (Listener != null)
+            {
+                // Остановим его
+                Listener.Stop();
+            }
+
+        }
     }
 }
