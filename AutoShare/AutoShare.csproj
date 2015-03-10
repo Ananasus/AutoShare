@@ -68,12 +68,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Engine\IO\FileSystem.cs" />
     <Compile Include="Engine\Network\NetworkServer.cs" />
     <Compile Include="Engine\Network\AutoClient.cs" />
+    <Compile Include="Engine\Network\Sharing\SharedFile.cs" />
     <Compile Include="Engine\XAMLConverters\ImageToSourceConverter.cs" />
     <Compile Include="Engine\XAMLConverters\MultiIntToBoolConverter.cs" />
     <Compile Include="Engine\XAMLConverters\PercentageConverter.cs" />
     <Compile Include="Engine\XAMLConverters\VisibilityConverter.cs" />
+    <Compile Include="Settings.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

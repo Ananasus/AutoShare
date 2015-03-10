@@ -3,7 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="FolderPath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">"C:/"</Value>
+      <Value Profile="(Default)">AutoShare</Value>
+    </Setting>
+    <Setting Name="UseDocFolder" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -13,7 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.IO;
 using System.Windows.Shapes;
+using MahApps.Metro.Controls.Dialogs;
+using MahApps.Metro.Controls;
 using System.Security.Permissions;
+using System.Threading;
 
 namespace AutoShare
 {
@@ -21,11 +24,35 @@ namespace AutoShare
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// 
-    public partial class MainWindow : MahApps.Metro.Controls.MetroWindow
+    public partial class MainWindow : MetroWindow
     {
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        void ShowBinaryDialog(string message, string caption, Action onOk, Action onCancel = null, string okButton = "Yes", string cancelButton = "No")
+        {
+            new Thread(() =>
+            {
+                MahApps.Metro.Controls.Dialogs.MetroDialogSettings ms = new MahApps.Metro.Controls.Dialogs.MetroDialogSettings();
+                ms.AffirmativeButtonText = okButton;
+                ms.NegativeButtonText = cancelButton;
+                ms.AnimateHide = ms.AnimateShow = false;
+                ms.ColorScheme = MahApps.Metro.Controls.Dialogs.MetroDialogColorScheme.Theme;
+                Task<MessageDialogResult> res = null;
+                this.Dispatcher.Invoke(new Action(() =>
+                {
+                    res = this.ShowMessageAsync(caption, message, MessageDialogStyle.AffirmativeAndNegative, ms);
+                    
+
+                }), System.Windows.Threading.DispatcherPriority.Send);
+                res.Wait();
+                if (res.Result == MessageDialogResult.Affirmative)
+                    onOk();
+                else if (onCancel != null)
+                    onCancel();
+            }).Start();
         }
 
         private void FileDropped(object sender, DragEventArgs e)
@@ -37,9 +64,17 @@ namespace AutoShare
                 {
                     try
                     {
+                        //check if the file really exists
                         if (System.IO.File.Exists(fileLoc))
                         {
-                        
+                            //check if the file with that name does not exist in the Sync folder
+                            if (!(App.Current as App).FolderWatchdog.HasFileName(fileLoc))
+                                (App.Current as App).FolderWatchdog.DropFile(fileLoc);
+                            //check if the user is dropping a file from a sync folder (wtf he is doing?)
+                            else if (!(App.Current as App).FolderWatchdog.IsInSyncFolder(fileLoc))
+                                this.ShowBinaryDialog("A file with that name already exists in the Sync Folder. Do you want to overwrite it?",
+                                                      "Overwriting descision:", () => { (App.Current as App).FolderWatchdog.DropFile(fileLoc); });
+                            
                         }
                     }
                     catch {
@@ -50,67 +85,5 @@ namespace AutoShare
         }
     }
                     
-    public class File
-    {
-        string FilePath;
-        bool IsShared;
-        bool IsChanged;
-        bool IsDeleted;
-        bool IsRenamed;
-
-        File(string FilePath, bool IsShared, bool IsChanged, bool IsRenamed, bool IsDeleted) 
-        { 
-            this.FilePath = FilePath;
-            this.IsShared = IsShared;
-            this.IsShared = IsRenamed;
-            this.IsDeleted = IsDeleted;
-        }
-                }
-
-    public class FileList
-    {
-        List<File> FList;
-
-        void Add() { }
-        void Remove() { }
-        void SyncFileList(){ }
-            }
-
-
-    public class FilesFolderChecker
-    {
-        [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        static void CheckFolder()
-        {
-                        
-            FileSystemWatcher watcher = new FileSystemWatcher();
-            watcher.Path = Properties.Settings.Default.FolderPath;
-            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-               | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-            //watcher.Filter = "*.*";
-            watcher.Changed += new FileSystemEventHandler(OnChanged);
-            watcher.Created += new FileSystemEventHandler(OnCreated);
-            watcher.Deleted += new FileSystemEventHandler(OnDeleted);
-            watcher.Renamed += new RenamedEventHandler(OnRenamed);
-
-            watcher.EnableRaisingEvents = true;
-                        }
-
-        private static void OnChanged(object source, FileSystemEventArgs e)
-        {
-
-                    }
-        private static void OnDeleted(object source, FileSystemEventArgs e)
-        {
-                    
-                }
-        private static void OnCreated(object source, FileSystemEventArgs e) 
-        {
-
-            }
-        private static void OnRenamed(object source, RenamedEventArgs e)
-        {
-            
-        }
-    }
+    
 }
