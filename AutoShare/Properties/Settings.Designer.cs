@@ -43,5 +43,23 @@ namespace AutoShare.Properties {
                 this["UseDocFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("users")]
+        public string UserlistPrefix {
+            get {
+                return ((string)(this["UserlistPrefix"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("userlist")]
+        public string UserlistExtension {
+            get {
+                return ((string)(this["UserlistExtension"]));
+            }
+        }
     }
 }

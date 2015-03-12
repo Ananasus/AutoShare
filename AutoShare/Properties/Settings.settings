@@ -8,5 +8,11 @@
     <Setting Name="UseDocFolder" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="UserlistPrefix" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">users</Value>
+    </Setting>
+    <Setting Name="UserlistExtension" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">userlist</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -4,26 +4,53 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:Converters="clr-namespace:Engine.XAMLConverters"
         WindowTransitionsEnabled="False"
-        Title="AutoShare" Height="360" Width="640" TitleCaps="False" AllowDrop="True" Drop="FileDropped">
+        Title="AutoShare" Height="360" Width="640" TitleCaps="False" AllowDrop="True" Drop="FileDropped" Closing="OnClosing">
     <Window.Resources>
         <ResourceDictionary>
             <Converters:PercentageConverter x:Key="PercentageConverter"/>
         </ResourceDictionary>
     </Window.Resources>
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands>
+            <Button x:Name="btnSettings" Content="settings"/>
+            <Button x:Name="btnNotifications" Content="about"/>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
     <Grid Margin="0,0,0,0" x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="87*"/>
             <ColumnDefinition Width="229*"/>
         </Grid.ColumnDefinitions>
         <Rectangle Fill="#FFEBE9F5" Margin="-1,0,1,0" Grid.ColumnSpan="2"/>
-        <Button x:Name="CloudBtn" Background="{x:Null}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="99" Width="{Binding ActualWidth, ElementName=MainGrid, ConverterParameter=0.25, Converter={StaticResource PercentageConverter}}" BorderThickness="0" IsDefault="True" BorderBrush="{x:Null}" Foreground="{x:Null}">
-            <StackPanel>
-                <Image Source="Resources/Cloud.png" ></Image>
-                <TextBlock Foreground="#111111" FontSize="16" FontFamily="Segoe UI Semibold" TextWrapping="WrapWithOverflow" FontWeight="Normal">Drag And Drop Your Files Here! :)</TextBlock>
-            </StackPanel>
-            
-        </Button>
-        
+        <!-- TabControl for page management -->
+        <Controls:MetroAnimatedSingleRowTabControl Grid.ColumnSpan="99" SelectedIndex="1">
+            <TabItem Header="FileSharing">
+                <Grid>
+                    <Grid x:Name="CloudBtn" Background="{x:Null}" HorizontalAlignment="Center" 
+                          VerticalAlignment="Center" Width="{Binding ActualWidth, ElementName=MainGrid, ConverterParameter=0.25, Converter={StaticResource PercentageConverter}}">
+                        <StackPanel Visibility="Visible">
+                            <Image Source="Resources/Cloud.png" ></Image>
+                            <TextBlock Foreground="#111111" FontSize="16" FontFamily="Segoe UI Semibold" TextWrapping="WrapWithOverflow" FontWeight="Normal">Drag And Drop Your Files Here! :)</TextBlock>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Network Users">
+                <DataGrid AreRowDetailsFrozen="True" Style="{StaticResource AzureDataGrid}" AutoGenerateColumns="True" x:Name="UsersDataGrid">
+                    
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Secure Chat">
+                <Controls:MetroAnimatedSingleRowTabControl TabStripPlacement="Left" AlternationCount="1" FontFamily="Verdana"  >
+                    <TabItem Header="Bob - 1 new">
+                        
+                    </TabItem>
+                    <TabItem Header="Alice"></TabItem>
+                </Controls:MetroAnimatedSingleRowTabControl>
+            </TabItem>
+        </Controls:MetroAnimatedSingleRowTabControl>
+
+
         <Controls:FlyoutsControl Grid.ColumnSpan="99" Grid.RowSpan="99">
             <Controls:Flyout Visibility="Collapsed" Name="Settings" Background="#FF090B17" ExternalCloseButton="Right" Position="Right" 
                              IsOpen="False" IsPinned="False" Header="Settings" Foreground="White" FontFamily="Century Gothic" FontSize="12" HorizontalAlignment="Right">

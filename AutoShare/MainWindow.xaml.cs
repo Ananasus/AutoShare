@@ -17,6 +17,8 @@ using MahApps.Metro.Controls.Dialogs;
 using MahApps.Metro.Controls;
 using System.Security.Permissions;
 using System.Threading;
+using System.Collections.ObjectModel;
+
 
 namespace AutoShare
 {
@@ -26,9 +28,18 @@ namespace AutoShare
     /// 
     public partial class MainWindow : MetroWindow
     {
+        ObservableCollection<AutoShare.Engine.Network.Sharing.UserInfo> UsersModel;
         public MainWindow()
         {
             InitializeComponent();
+            UsersModel = new ObservableCollection<Engine.Network.Sharing.UserInfo>((App.Current as App).KnownUsers.List);
+            UsersDataGrid.ItemsSource = UsersModel;
+            UsersModel.CollectionChanged += UsersModel_CollectionChanged;
+        }
+
+        void UsersModel_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            //throw new NotImplementedException();
         }
 
         void ShowBinaryDialog(string message, string caption, Action onOk, Action onCancel = null, string okButton = "Yes", string cancelButton = "No")
@@ -70,7 +81,7 @@ namespace AutoShare
                             //check if the file with that name does not exist in the Sync folder
                             if (!(App.Current as App).FolderWatchdog.HasFileName(fileLoc))
                                 (App.Current as App).FolderWatchdog.DropFile(fileLoc);
-                            //check if the user is dropping a file from a sync folder (wtf he is doing?)
+                            //check if the user is dropping a file from a sync folder (wtf he is doing?) //temp
                             else if (!(App.Current as App).FolderWatchdog.IsInSyncFolder(fileLoc))
                                 this.ShowBinaryDialog("A file with that name already exists in the Sync Folder. Do you want to overwrite it?",
                                                       "Overwriting descision:", () => { (App.Current as App).FolderWatchdog.DropFile(fileLoc); });
@@ -82,6 +93,22 @@ namespace AutoShare
                     }
                 }
             }
+        }
+
+        private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //TEMP
+            if ((App.Current as App).AskUserExit)
+            {
+                this.ShowBinaryDialog("There are actions preventing to close the application. Do you really want to exit?", "Exit Confirmation" , () => {
+                    this.Dispatcher.BeginInvoke(new Action(() => {
+                        this.Closing -= OnClosing;
+                        this.Close(); 
+                    }));  
+                });
+            }
+            e.Cancel = true;
+            
         }
     }
                     
