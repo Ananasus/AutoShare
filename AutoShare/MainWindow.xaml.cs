@@ -13,6 +13,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.IO;
 using System.Windows.Shapes;
+using MahApps.Metro.Controls.Dialogs;
+using MahApps.Metro.Controls;
+using System.Security.Permissions;
+using System.Threading;
+using System.Collections.ObjectModel;
+
 
 namespace AutoShare
 {
@@ -20,11 +26,59 @@ namespace AutoShare
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// 
-    public partial class MainWindow : MahApps.Metro.Controls.MetroWindow
+    public partial class MainWindow : MetroWindow
     {
+        ObservableCollection<AutoShare.Engine.Network.Sharing.UserInfo> UsersModel;
         public MainWindow()
         {
             InitializeComponent();
+            UsersModel = new ObservableCollection<Engine.Network.Sharing.UserInfo>((App.Current as App).KnownUsers.List);
+            UsersDataGrid.ItemsSource = UsersModel;
+            UsersModel.CollectionChanged += UsersModel_CollectionChanged;
+
+            //TEST for testing purposes
+            if ((App.Current as App).KnownUsers.List.Count > 0)
+            {
+                (App.Current as App).Server.PingReceived += Server_PingReceived;
+                (App.Current as App).Client.AddNode(new Engine.Network.NetworkClient.UserStatus((App.Current as App).KnownUsers.List[0], DateTime.MinValue, false));
+            }
+            
+        }
+
+        void Server_PingReceived(object sender, EventArgs e)
+        {
+
+            this.Dispatcher.BeginInvoke(new Action(() => { this.ShowMessageAsync("OLOLO", "Received from someone PING message", MessageDialogStyle.Affirmative); }));
+        }
+
+
+        void UsersModel_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        void ShowBinaryDialog(string message, string caption, Action onOk, Action onCancel = null, string okButton = "Yes", string cancelButton = "No")
+        {
+            new Thread(() =>
+            {
+                MahApps.Metro.Controls.Dialogs.MetroDialogSettings ms = new MahApps.Metro.Controls.Dialogs.MetroDialogSettings();
+                ms.AffirmativeButtonText = okButton;
+                ms.NegativeButtonText = cancelButton;
+                ms.AnimateHide = ms.AnimateShow = false;
+                ms.ColorScheme = MahApps.Metro.Controls.Dialogs.MetroDialogColorScheme.Theme;
+                Task<MessageDialogResult> res = null;
+                this.Dispatcher.Invoke(new Action(() =>
+                {
+                    res = this.ShowMessageAsync(caption, message, MessageDialogStyle.AffirmativeAndNegative, ms);
+                    
+
+                }), System.Windows.Threading.DispatcherPriority.Send);
+                res.Wait();
+                if (res.Result == MessageDialogResult.Affirmative)
+                    onOk();
+                else if (onCancel != null)
+                    onCancel();
+            }).Start();
         }
 
         private void FileDropped(object sender, DragEventArgs e)
@@ -36,18 +90,43 @@ namespace AutoShare
                 {
                     try
                     {
-                        if (File.Exists(fileLoc))
+                        //check if the file really exists
+                        if (System.IO.File.Exists(fileLoc))
                         {
-                        
+                            //check if the file with that name does not exist in the Sync folder
+                            if (!(App.Current as App).FolderWatchdog.HasFileName(fileLoc))
+                                (App.Current as App).FolderWatchdog.DropFile(fileLoc);
+                            //check if the user is dropping a file from a sync folder (wtf he is doing?) //temp
+                            else if (!(App.Current as App).FolderWatchdog.IsInSyncFolder(fileLoc))
+                                this.ShowBinaryDialog("A file with that name already exists in the Sync Folder. Do you want to overwrite it?",
+                                                      "Overwriting descision:", () => { (App.Current as App).FolderWatchdog.DropFile(fileLoc); });
+                            
                         }
                     }
-                    catch 
-                    {
-
-                    }
+                    catch {
                     
+                    }
                 }
             }
         }
+
+        private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //TEMP
+            if ((App.Current as App).AskUserExit)
+            {
+                this.ShowBinaryDialog("There are actions preventing to close the application. Do you really want to exit?", "Exit Confirmation" , () => {
+                    this.Dispatcher.BeginInvoke(new Action(() => {
+                        this.Closing -= OnClosing;
+                        this.Close();
+                        (App.Current as App).Shutdown();
+                    }));  
+                });
+            }
+            e.Cancel = true;
+            
+        }
     }
+                    
+    
 }
