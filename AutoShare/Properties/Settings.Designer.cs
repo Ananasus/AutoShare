@@ -61,5 +61,26 @@ namespace AutoShare.Properties {
                 return ((string)(this["UserlistExtension"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("12344")]
+        public int ServerPort {
+            get {
+                return ((int)(this["ServerPort"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("users.temp")]
+        public string TemporaryUserlistName {
+            get {
+                return ((string)(this["TemporaryUserlistName"]));
+            }
+            set {
+                this["TemporaryUserlistName"] = value;
+            }
+        }
     }
 }

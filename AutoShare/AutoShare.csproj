@@ -71,7 +71,7 @@
     <Compile Include="Engine\IO\FileSystem.cs" />
     <Compile Include="Engine\IO\SerializableList.cs" />
     <Compile Include="Engine\Network\NetworkServer.cs" />
-    <Compile Include="Engine\Network\AutoClient.cs" />
+    <Compile Include="Engine\Network\NetworkClient.cs" />
     <Compile Include="Engine\Network\NetPacket.cs" />
     <Compile Include="Engine\Network\Sharing\SharedFile.cs" />
     <Compile Include="Engine\Network\Sharing\UserInfo.cs" />

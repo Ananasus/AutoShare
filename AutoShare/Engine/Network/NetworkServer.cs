@@ -9,14 +9,40 @@ using AutoShare.Engine.Network;
 
 namespace AutoShare.Engine.Network 
 {
-    public class NetworkServer
+    public class NetworkServer:IDisposable
     {
         #region 
         TcpListener Listener; // Объект, принимающий TCP-клиентов
         ManualResetEvent HEvent;
         List<Thread> ProcessingThreads;
         Thread ServerThread;
+        bool Disposed; //Показывает, рабочий ли объект класса на данный момент
+        #endregion
 
+
+        #region Protected Functions
+        void DisposeImplemention()
+        {
+            if (!Disposed)
+            {
+                this.HEvent.Set();
+                for (int i = 0, s = ProcessingThreads.Count; i < s; ++i)
+                    ProcessingThreads[i].Abort(); //TODO either remove this madness or make another approach as the processing thread could be running long and is NOT a critical (means important) thread
+
+                Disposed = true;
+            }
+
+            
+        }
+
+        void Resurrect()
+        {
+            if (Disposed)
+            {
+                //TODO - ressurect
+            }
+
+        }
         #endregion
         #region Threading Functions
         void ProcessClientThreadingFunction(object client)
@@ -33,9 +59,12 @@ namespace AutoShare.Engine.Network
                         NetworkStream ns = cli.GetStream();
                         byte[] bytes_to_send, buffer = new byte[NetPacket.PacketSignatureRule.MaxSignatureSize];
                         //Accept the signature and some data (probably)
-                        ns.Read(buffer, 0, buffer.Length);
-
+                        int nbytes = cli.Available;
+                        ns.Read(buffer, 0, nbytes);
                         //TEMP
+                        if (System.Text.UTF8Encoding.UTF8.GetString(buffer, 0, nbytes) == "PING")
+                            this.DispatchEvent(this.PingReceived);
+                            
                         bytes_to_send = System.Text.UTF8Encoding.UTF8.GetBytes("PONG");
                         //Final Function
                         ns.Write(bytes_to_send, 0, bytes_to_send.Length);
@@ -54,19 +83,37 @@ namespace AutoShare.Engine.Network
         {
             Listener.Start();
             Listener.BeginAcceptTcpClient( (IAsyncResult res)=>{
-                TcpClient cli = Listener.EndAcceptTcpClient(res);
-                if(cli!=null){
-                    Thread thr = new Thread(ProcessClientThreadingFunction);
-                    ProcessingThreads.Add(thr);
-                    thr.Start( cli );
+                try
+                {
+                    TcpClient cli = Listener.EndAcceptTcpClient(res);
+                    if (cli != null)
+                    {
+                        Thread thr = new Thread(ProcessClientThreadingFunction);
+                        ProcessingThreads.Add(thr);
+                        thr.Start(cli);
+                    }
                 }
+                catch (ObjectDisposedException){
+                    //ok, socket was disposed outside the code
+                }
+                
             }, null);
             this.HEvent.WaitOne();
             Listener.Stop();
             
         }
         #endregion 
-
+        #region Public Events and Event Dispatchers
+        public event EventHandler<AutoShare.Engine.Network.NetPacket> AcceptedClient;
+        //TEMP temporary event just for testing purposes (maybe add a META HEAD "TEST"?)
+        //TEST Yeah, maybe
+        public event EventHandler PingReceived;
+        protected void DispatchEvent(Delegate Event, object value = null)
+        {
+            if (Event != null)
+                Event.DynamicInvoke(this, value??new EventArgs());
+        }
+        #endregion 
         #region Constructors and Destructors
         //Запуск Сервера
         public NetworkServer(int Port, bool StartImmediately = true)
@@ -82,12 +129,11 @@ namespace AutoShare.Engine.Network
             
         }
 
+        
         // Остановка сервера
         ~NetworkServer()
         {
-            this.HEvent.Set();
-            for (int i = 0, s = ProcessingThreads.Count; i < s; ++i )
-                ProcessingThreads[i].Abort();
+            this.DisposeImplemention();
         }
         #endregion
         #region API Calls
@@ -97,6 +143,11 @@ namespace AutoShare.Engine.Network
             if(ServerThread.ThreadState != ThreadState.Running){
                 ServerThread.Start();
             }
+        }
+
+        public void Dispose()
+        {
+            this.DisposeImplemention();
         }
         #endregion
     }

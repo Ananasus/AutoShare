@@ -166,14 +166,14 @@ namespace AutoShare.Engine.Network.Sharing
         #endregion
         #region Properties
         //Changes frequently
-        System.Net.IPEndPoint LastKnownAddress { get { return _addr; } }
-        bool StrictNATDetected { get { return _strict_nat; } }
+        public System.Net.IPEndPoint LastKnownAddress { get { return _addr; } }
+        public bool StrictNATDetected { get { return _strict_nat; } set { _strict_nat = value; } }
         //Almost Hardcoded
-        string EvaluationKey { get { return _eval_key; } }
-        string UserName { get { return _name; } }
+        public string EvaluationKey { get { return _eval_key; } }
+        public string UserName { get { return _name; } }
         //Historical
-        bool LogChangeIPs { get { return this._log_ips; } }
-        List<IPHistoryEntry> AddressHistory { get { return this._addr_history; } }
+        public bool LogChangeIPs { get { return this._log_ips; } }
+        public List<IPHistoryEntry> AddressHistory { get { return this._addr_history; } }
 
         #endregion
         #region Private methods

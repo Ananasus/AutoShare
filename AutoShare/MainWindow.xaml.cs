@@ -35,7 +35,22 @@ namespace AutoShare
             UsersModel = new ObservableCollection<Engine.Network.Sharing.UserInfo>((App.Current as App).KnownUsers.List);
             UsersDataGrid.ItemsSource = UsersModel;
             UsersModel.CollectionChanged += UsersModel_CollectionChanged;
+
+            //TEST for testing purposes
+            if ((App.Current as App).KnownUsers.List.Count > 0)
+            {
+                (App.Current as App).Server.PingReceived += Server_PingReceived;
+                (App.Current as App).Client.AddNode(new Engine.Network.NetworkClient.UserStatus((App.Current as App).KnownUsers.List[0], DateTime.MinValue, false));
+            }
+            
         }
+
+        void Server_PingReceived(object sender, EventArgs e)
+        {
+
+            this.Dispatcher.BeginInvoke(new Action(() => { this.ShowMessageAsync("OLOLO", "Received from someone PING message", MessageDialogStyle.Affirmative); }));
+        }
+
 
         void UsersModel_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
@@ -103,7 +118,8 @@ namespace AutoShare
                 this.ShowBinaryDialog("There are actions preventing to close the application. Do you really want to exit?", "Exit Confirmation" , () => {
                     this.Dispatcher.BeginInvoke(new Action(() => {
                         this.Closing -= OnClosing;
-                        this.Close(); 
+                        this.Close();
+                        (App.Current as App).Shutdown();
                     }));  
                 });
             }
